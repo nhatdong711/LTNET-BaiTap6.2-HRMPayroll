@@ -1,7 +1,4 @@
--- =============================================================
--- Bài 6.2 - HỆ THỐNG QUẢN LÝ NHÂN SỰ & TÍNH LƯƠNG (HRMDB)
--- SQL Server / LocalDB. Chương trình tự chạy script này nếu CSDL chưa có.
--- =============================================================
+
 IF DB_ID(N'HRMDB') IS NULL
     CREATE DATABASE HRMDB;
 GO
@@ -34,9 +31,6 @@ CREATE TABLE BangChamCong (
     CONSTRAINT UQ_ChamCong UNIQUE (MaNV, ThangNam)
 );
 
--- Đề bài ghi đồng thời MaLuong là khóa chính Identity và (MaNV, ThangNam) là khóa chính.
--- Một bảng chỉ có 1 khóa chính nên: MaLuong = PRIMARY KEY, (MaNV, ThangNam) = UNIQUE
--- => mỗi nhân viên chỉ có đúng 1 bảng lương mỗi tháng.
 CREATE TABLE BangLuong (
     MaLuong  INT IDENTITY(1,1) PRIMARY KEY,
     MaNV     INT NOT NULL FOREIGN KEY REFERENCES NhanVien(MaNV),
@@ -46,7 +40,6 @@ CREATE TABLE BangLuong (
 );
 GO
 
--- ---------------- Dữ liệu mẫu ----------------
 INSERT INTO PhongBan (TenPB, Mota) VALUES
 (N'Phòng Kỹ thuật',   N'Phát triển và vận hành hệ thống'),
 (N'Phòng Kinh doanh', N'Bán hàng, chăm sóc khách hàng'),
@@ -63,7 +56,6 @@ INSERT INTO NhanVien (HoTen, NgaySinh, CCCD, MaPB, LuongCoBan, HeSoLuong) VALUES
 (N'Vũ Đức Anh',       '1997-12-21', '001097078901', 3,  8000000, 1.00),
 (N'Bùi Hải Yến',      '1994-04-14', '001194089012', 4,  9500000, 1.50);
 
--- Tháng 10/2026: đã chấm công và đã chốt lương (dữ liệu mẫu cho báo cáo)
 INSERT INTO BangChamCong (MaNV, ThangNam, SoNgayCong, SoGioOT, DaChot) VALUES
 (1, '10/2026', 22, 10, 1), (2, '10/2026', 21, 4, 1), (3, '10/2026', 22, 0, 1), (4, '10/2026', 20, 6, 1),
 (5, '10/2026', 22, 12, 1), (6, '10/2026', 22, 2, 1), (7, '10/2026', 19, 0, 1), (8, '10/2026', 21.5, 3, 1);
