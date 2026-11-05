@@ -4,10 +4,9 @@ using QuanLyNhanSu.DTO;
 
 namespace QuanLyNhanSu.DAL
 {
-    /// <summary>Truy vấn hồ sơ nhân viên – toàn bộ dùng parameterized query.</summary>
     public class NhanVienDAL
     {
-        /// <summary>Tìm theo tên hoặc CCCD (LIKE @tk) và lọc theo phòng ban (@pb = 0: tất cả).</summary>
+      
         public DataTable TimKiem(string tuKhoa, int maPB)
         {
             using var conn = DBConnection.GetConnection();
