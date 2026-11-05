@@ -6,11 +6,7 @@ namespace QuanLyNhanSu.DAL
 {
     public class LuongDAL
     {
-        /// <summary>
-        /// Chốt lương tháng trong MỘT SqlTransaction:
-        ///  1. Kiểm tra tháng chưa chốt  2. INSERT BangLuong cho toàn bộ nhân viên
-        ///  3. Khóa chấm công (DaChot = 1)  4. Commit. Lỗi ở bất kỳ bước nào → Rollback.
-        /// </summary>
+        
         public int ChotLuong(string thangNam, List<BangLuongDTO> dsLuong)
         {
             using var conn = DBConnection.GetConnection();
@@ -18,7 +14,7 @@ namespace QuanLyNhanSu.DAL
             SqlTransaction trans = conn.BeginTransaction();
             try
             {
-                // 1. Tháng đã chốt thì không cho chốt lại
+              
                 using (var cmd = new SqlCommand(
                     "SELECT COUNT(*) FROM BangLuong WITH (UPDLOCK) WHERE ThangNam = @tn", conn, trans))
                 {
@@ -32,7 +28,6 @@ namespace QuanLyNhanSu.DAL
                     }
                 }
 
-                // 2. Ghi bảng lương từng nhân viên
                 foreach (var bl in dsLuong)
                 {
                     using var cmd = new SqlCommand(
@@ -44,7 +39,6 @@ namespace QuanLyNhanSu.DAL
                     cmd.ExecuteNonQuery();
                 }
 
-                // 3. Khóa dữ liệu chấm công của tháng
                 using (var cmd = new SqlCommand(
                     "UPDATE BangChamCong SET DaChot = 1 WHERE ThangNam = @tn", conn, trans))
                 {
@@ -52,7 +46,6 @@ namespace QuanLyNhanSu.DAL
                     cmd.ExecuteNonQuery();
                 }
 
-                // 4. Hoàn tất
                 trans.Commit();
                 return dsLuong.Count;
             }
@@ -80,7 +73,6 @@ namespace QuanLyNhanSu.DAL
             return dt;
         }
 
-        /// <summary>Tổng quỹ lương tháng – ExecuteScalar.</summary>
         public decimal TongQuyLuong(string thangNam)
         {
             using var conn = DBConnection.GetConnection();
@@ -90,7 +82,6 @@ namespace QuanLyNhanSu.DAL
             return Convert.ToDecimal(cmd.ExecuteScalar());
         }
 
-        /// <summary>Thống kê lương theo phòng ban – SqlDataReader.</summary>
         public List<ThongKePhongBanDTO> ThongKeTheoPhongBan(string thangNam)
         {
             var ds = new List<ThongKePhongBanDTO>();
@@ -107,8 +98,6 @@ namespace QuanLyNhanSu.DAL
                 ds.Add(new ThongKePhongBanDTO { TenPB = rd.GetString(0), SoNhanVien = rd.GetInt32(1), TongLuong = rd.GetDecimal(2) });
             return ds;
         }
-
-        /// <summary>Các tháng đã chốt lương (mới nhất trước).</summary>
         public List<string> CacThangDaChot()
         {
             var ds = new List<string>();
@@ -122,7 +111,6 @@ namespace QuanLyNhanSu.DAL
         }
     }
 
-    /// <summary>Lỗi nghiệp vụ trong giao dịch (đã Rollback).</summary>
     public class GiaoDichException : Exception
     {
         public GiaoDichException(string msg) : base(msg) { }
