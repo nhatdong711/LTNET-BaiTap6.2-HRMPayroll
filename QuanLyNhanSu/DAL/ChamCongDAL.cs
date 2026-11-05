@@ -3,11 +3,7 @@ using Microsoft.Data.SqlClient;
 
 namespace QuanLyNhanSu.DAL
 {
-    /// <summary>
-    /// Chấm công theo MÔ HÌNH NGẮT KẾT NỐI (Disconnected Model):
-    /// SqlDataAdapter.Fill → DataSet/DataTable (sửa trên lưới, không giữ kết nối)
-    /// → SqlCommandBuilder sinh INSERT/UPDATE → adapter.Update() đồng bộ về SQL Server 1 lần.
-    /// </summary>
+    
     public class ChamCongDAL
     {
         private readonly SqlConnection conn = DBConnection.GetConnection();
@@ -15,7 +11,7 @@ namespace QuanLyNhanSu.DAL
         private SqlCommandBuilder builder;
         public DataSet DataSet { get; } = new DataSet("HRM");
 
-        /// <summary>Nạp chấm công của tháng; nhân viên chưa có dòng nào sẽ được thêm dòng mới (RowState = Added).</summary>
+        
         public DataTable NapChamCong(string thangNam)
         {
             if (DataSet.Tables.Contains("BangChamCong")) DataSet.Tables.Remove("BangChamCong");
@@ -23,22 +19,19 @@ namespace QuanLyNhanSu.DAL
             adapter = new SqlDataAdapter(
                 "SELECT MaCong, MaNV, ThangNam, SoNgayCong, SoGioOT, DaChot FROM BangChamCong WHERE ThangNam = @tn", conn);
             adapter.SelectCommand.Parameters.Add("@tn", SqlDbType.VarChar, 7).Value = thangNam;
-            adapter.MissingSchemaAction = MissingSchemaAction.AddWithKey; // lấy khóa chính, identity
+            adapter.MissingSchemaAction = MissingSchemaAction.AddWithKey; 
             builder = new SqlCommandBuilder(adapter) { ConflictOption = ConflictOption.OverwriteChanges };
 
-            adapter.Fill(DataSet, "BangChamCong");     // adapter tự mở rồi đóng kết nối
+            adapter.Fill(DataSet, "BangChamCong");    
             DataTable dt = DataSet.Tables["BangChamCong"];
 
-            // Khóa tạm âm cho dòng mới, SQL Server sẽ cấp MaCong thật khi Update
             DataColumn colMa = dt.Columns["MaCong"];
             colMa.AutoIncrement = true; colMa.AutoIncrementSeed = -1; colMa.AutoIncrementStep = -1;
 
-            // Cột chỉ để hiển thị (không có trong bảng nên SqlCommandBuilder bỏ qua)
             dt.Columns.Add("HoTen", typeof(string));
             dt.Columns.Add("TenPB", typeof(string));
             dt.Columns.Add("ThucLinhDuKien", typeof(decimal));
 
-            // Danh sách toàn bộ nhân viên
             var dsNV = new DataTable();
             using (var da = new SqlDataAdapter(
                 "SELECT nv.MaNV, nv.HoTen, ISNULL(pb.TenPB, N'') AS TenPB FROM NhanVien nv " +
@@ -57,18 +50,17 @@ namespace QuanLyNhanSu.DAL
                     r["SoNgayCong"] = 0d;
                     r["SoGioOT"] = 0d;
                     r["DaChot"] = false;
-                    dt.Rows.Add(r);                     // RowState = Added
+                    dt.Rows.Add(r);                     
                 }
                 bool chuaDoi = r.RowState == DataRowState.Unchanged;
                 r["HoTen"] = nv["HoTen"];
                 r["TenPB"] = nv["TenPB"];
-                if (chuaDoi) r.AcceptChanges();         // cột hiển thị không tính là thay đổi
+                if (chuaDoi) r.AcceptChanges();       
             }
             dt.DefaultView.Sort = "MaNV ASC";
             return dt;
         }
 
-        /// <summary>Đồng bộ toàn bộ thay đổi về SQL Server trong 1 lần gọi adapter.Update().</summary>
         public int LuuChamCong()
         {
             DataTable dt = DataSet.Tables["BangChamCong"];
@@ -86,7 +78,6 @@ namespace QuanLyNhanSu.DAL
             return (int)cmd.ExecuteScalar() > 0;
         }
 
-        /// <summary>Lấy dữ liệu chấm công + lương cơ bản để BUS tính thực lĩnh.</summary>
         public List<DTO.ChamCongDTO> LayDuLieuTinhLuong(string thangNam)
         {
             var ds = new List<DTO.ChamCongDTO>();
