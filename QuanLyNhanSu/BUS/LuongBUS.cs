@@ -12,7 +12,6 @@ namespace QuanLyNhanSu.BUS
         private readonly LuongDAL dal = new();
         private readonly ChamCongDAL ccDal = new();
 
-        /// <summary>ThucLinh = (LuongCoBan * HeSoLuong / 22) * SoNgayCong + SoGioOT * 50.000</summary>
         public static decimal TinhThucLinh(decimal luongCoBan, double heSo, double soNgayCong, double soGioOT)
         {
             decimal tl = luongCoBan * (decimal)heSo / NgayCongChuan * (decimal)soNgayCong
@@ -20,7 +19,6 @@ namespace QuanLyNhanSu.BUS
             return Math.Round(tl, 0);
         }
 
-        /// <summary>Tính lương từ dữ liệu chấm công ĐÃ LƯU rồi chốt trong 1 transaction.</summary>
         public int ChotLuong(string thangNam)
         {
             List<ChamCongDTO> ds = ccDal.LayDuLieuTinhLuong(thangNam);
