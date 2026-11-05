@@ -12,7 +12,6 @@ namespace QuanLyNhanSu.BUS
         public DataTable NapChamCong(string thangNam) => dal.NapChamCong(thangNam);
         public bool DaChot(string thangNam) => dal.DaChot(thangNam);
 
-        /// <summary>Kiểm tra dữ liệu trên lưới rồi đồng bộ bằng adapter.Update().</summary>
         public int LuuChamCong(DataTable dt)
         {
             foreach (DataRow r in dt.Rows)
